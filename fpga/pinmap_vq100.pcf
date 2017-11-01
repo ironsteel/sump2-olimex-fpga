@@ -1,0 +1,17 @@
+set_io clk_12m  15
+
+set_io ftdi_wi  24
+set_io ftdi_ro  25
+
+set_io LED1     40
+set_io LED2     51
+
+set_io events_din[0] 1
+set_io events_din[1] 2
+set_io events_din[2] 3
+set_io events_din[3] 4
+set_io events_din[4] 7
+set_io events_din[5] 8
+set_io events_din[6] 9
+set_io events_din[7] 10
+

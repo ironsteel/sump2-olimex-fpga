@@ -1,0 +1,17 @@
+set_io clk_100m  J3
+
+set_io ftdi_wi  F3 
+set_io ftdi_ro  H3
+
+set_io LED1     M16
+set_io LED2     R16
+
+set_io events_din[0] E4
+set_io events_din[1] B2
+set_io events_din[2] F5
+set_io events_din[3] B1
+set_io events_din[4] C1
+set_io events_din[5] C2
+set_io events_din[6] F4
+set_io events_din[7] D2
+
