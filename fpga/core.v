@@ -150,7 +150,7 @@ module core
 sump2
 #
 (
-  .depth_len      (  2048                   ),
+  .depth_len      (  1024                   ),
   .depth_bits     (  12                     ),
   .event_bytes    (  4                      ),
   .data_dwords    (  1                      ),
@@ -160,7 +160,7 @@ sump2
   .trigger_nth_en (  0                      ),
   .trigger_dly_en (  0                      ),
   .trigger_wd_en  (  0                      ),
-  .freq_mhz       (  16'd100                ),
+  .freq_mhz       (  16'd48                ),
   .freq_fracts    (  16'h0000               )
 )
 u_sump2

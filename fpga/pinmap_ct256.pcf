@@ -1,4 +1,4 @@
-set_io clk_100m  J3
+set_io clk      J3
 
 set_io ftdi_wi  F3 
 set_io ftdi_ro  H3

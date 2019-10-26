@@ -1,8 +1,10 @@
 PROJ      = top
 BUILD     = ./build
-DEVICE    = 8k
+DEVICE    = up5k
 ifeq (8k,$(DEVICE))
 FOOTPRINT = ct256
+else ifeq (up5k,$(DEVICE))
+FOOTPRINT = sg48
 else
 FOOTPRINT = vq100
 endif
@@ -24,6 +26,7 @@ FILES += mesa_uart.v
 FILES += spi_byte2bit.v
 FILES += spi_prom.v
 FILES += time_stamp.v
+FILES += pll.v
 
 .PHONY: all clean burn
 
@@ -33,17 +36,20 @@ $(BUILD)/$(PROJ).bin: $(FILES) Makefile
 	# if build folder doesn't exist, create it
 	mkdir -p $(BUILD)
 	# synthesize using Yosys
-	yosys -p "synth_ice40 -top top -blif $(BUILD)/$(PROJ).blif" $(FILES)
-	# Place and route using arachne
-	arachne-pnr  -r -d $(DEVICE) -P $(FOOTPRINT) -o $(BUILD)/$(PROJ).asc -p pinmap_$(FOOTPRINT).pcf $(BUILD)/$(PROJ).blif
+	yosys -p "synth_ice40 -top top  -json $(BUILD)/$(PROJ).json" $(FILES)
+	# Place and route using nextpnr
+	nextpnr-ice40 --$(DEVICE) --package $(FOOTPRINT) --pcf pinmap_$(FOOTPRINT).pcf --json $(BUILD)/$(PROJ).json --asc $(BUILD)/$(PROJ).asc
 	# Convert to bitstream using IcePack
 	icepack $(BUILD)/$(PROJ).asc $(BUILD)/$(PROJ).bin
 	
 %.rpt: %.asc
-	icetime -d hx$(DEVICE) -mtr $@ $<
+	icetime -d $(DEVICE) -mtr $@ $<
 
 burn:   $(BUILD)/$(PROJ).bin
 	iceprogduino $<
+  
+prog:   $(BUILD)/$(PROJ).bin
+	iceprog $<
 clean:
 	rm -f build/*
 

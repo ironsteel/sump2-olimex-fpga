@@ -24,7 +24,7 @@
 
 module top
 (
-  input  wire         clk_100m,
+  input  wire         clk,
   input  wire         ftdi_wi,
   output wire         ftdi_ro,
   input  wire [7:0]   events_din,
@@ -32,6 +32,11 @@ module top
   output wire         LED1,
   output wire         LED2
 );// module top
+
+
+  wire					locked;
+  wire					locked_pre;
+  wire					clock;
 
   wire          lb_wr;
   wire          lb_rd;
@@ -74,7 +79,18 @@ module top
   assign LED1 = led_bus[1];
   assign LED2 = led_bus[2];
 
-  assign reset_loc = 0;
+`define up5k
+`ifdef up5k
+  pll pll_i(.clock_in(clk), .clock_out(clock), .locked(locked_pre));
+	always @(posedge clock)
+	    locked <= locked_pre;
+`else
+  assign locked = 1;
+  assign clock = clk;
+`endif
+
+ assign reset_loc = 0;
+    
 
   // Hookup FTDI RX and TX pins to MesaBus Phy
   assign mesa_wi_loc = ftdi_wi;
@@ -87,15 +103,19 @@ module top
   assign events_loc[5] = mesa_ro_loc;
 
   assign events_loc[4:0]   = events_din[4:0];
-  assign events_loc[15:8]  = 8'd0;  
+  assign events_loc[15:8]  = 8'd0;
 
 
 reg	[1:0]		clk_div; // 2 bit counter
 wire			clk_lb;	
+`ifdef up5k
+assign 	clk_lb 	= clk_div[0];	// 25Mhz clock for mesa local bus (UART) from 48Mhz clock
+`else 
+assign 	clk_lb 	= clk_div[1];	// 25Mhz clock for mesa local bus (UART) from 100Mhz clock
+`endif
 
-assign 	clk_lb 	= clk_div[1];	// 25Mhz clock for mesa local bus (UART) 
 
-always @ (posedge clk_cap_tree) begin // 2-bt counter ++ on each positive edge of 100Mhz clock
+always @ (posedge clk_cap_tree) begin 
 	clk_div <= clk_div + 2'b1;
 end
 
@@ -107,7 +127,7 @@ SB_GB u0_sb_gb
 
 SB_GB u1_sb_gb 
 (
-  .USER_SIGNAL_TO_GLOBAL_BUFFER ( clk_100m  ),
+  .USER_SIGNAL_TO_GLOBAL_BUFFER ( clock  ),
   .GLOBAL_BUFFER_OUTPUT         ( clk_cap_tree )
 );
 
